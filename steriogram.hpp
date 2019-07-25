@@ -6,13 +6,13 @@
 namespace steriogram
 {
 
-    int GetColumn(int width)
+    int GetColumn(const int width)
     {
         return 4.5 * pow(width, 0.45);
     }
 
     template<int PIXEL_SIZE>
-    std::vector<unsigned  char> CreatePattern(int column)
+    std::vector<unsigned  char> CreatePattern(const int column)
     {
         std::vector<unsigned char> pattern(column * column * PIXEL_SIZE);
         for (int y = 0; y < column; ++y)
@@ -33,7 +33,7 @@ namespace steriogram
     }
 
     template<int PIXEL_SIZE, int Z_LEVELS>
-    void Convert(unsigned char* data, int column, int width, int height, unsigned char* pattern)
+    void Convert(unsigned char* data, const int column, const int width, const int height, const unsigned char* pattern)
     {
         int size = std::min(3, PIXEL_SIZE);
         std::vector<std::thread>threads(std::thread::hardware_concurrency());
