@@ -8,7 +8,7 @@ namespace steriogram
 
     int GetColumn(const int width)
     {
-        return 4.5 * pow(width, 0.45);
+        return 4.4 * pow(width, 0.44);
     }
 
     template<int PIXEL_SIZE>
