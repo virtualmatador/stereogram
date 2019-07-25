@@ -6,38 +6,35 @@
 namespace steriogram
 {
 
-    template<int PIXEL_SIZE>
-    void WritePattern(int column, unsigned char* dest, void* user_data)
+    int GetColumn(int width)
     {
+        return 4.5 * pow(width, 0.45);
+    }
+
+    template<int PIXEL_SIZE>
+    std::vector<unsigned  char> CreatePattern(int column)
+    {
+        std::vector<unsigned char> pattern(column * column * PIXEL_SIZE);
         for (int y = 0; y < column; ++y)
         {
             for (int x = 0; x < column; ++x)
             {
                 if (PIXEL_SIZE > 0)
-                    dest[(y * column + x) * PIXEL_SIZE + 0] = int(pow(y + column / 3.6, 1.45) * pow(x + column / 3.4, 1.55)) % 256;
+                    pattern[(y * column + x) * PIXEL_SIZE + 0] = int(pow(y + column / 3.6, 1.45) * pow(x + column / 3.4, 1.55)) % 256;
                 if (PIXEL_SIZE > 1)
-                    dest[(y * column + x) * PIXEL_SIZE + 1] = int(pow(y + column / 4.8, 1.15) * pow(x + column / 4.6, 1.25)) % 256;
+                    pattern[(y * column + x) * PIXEL_SIZE + 1] = int(pow(y + column / 4.8, 1.15) * pow(x + column / 4.6, 1.25)) % 256;
                 if (PIXEL_SIZE > 2)
-                    dest[(y * column + x) * PIXEL_SIZE + 2] = int(pow(y + column / 2.2, 1.85) * pow(x + column / 2.4, 1.75)) % 256;
+                    pattern[(y * column + x) * PIXEL_SIZE + 2] = int(pow(y + column / 2.2, 1.85) * pow(x + column / 2.4, 1.75)) % 256;
                 if (PIXEL_SIZE > 3)
-                    dest[(y * column + x) * PIXEL_SIZE + 3] = 255;
+                    pattern[(y * column + x) * PIXEL_SIZE + 3] = 255;
             }
         }
+        return pattern;
     }
 
     template<int PIXEL_SIZE, int Z_LEVELS>
-    void Convert(unsigned char* data, int width, int height,
-        void (*WritePattern)(int column, unsigned char* dest, void* user_data) = nullptr,
-        void* user_data = nullptr, int column = 0, int x = 0, int y = 0, int stride = 0)
+    void Convert(unsigned char* data, int column, int width, int height, unsigned char* pattern)
     {
-        if (WritePattern == nullptr)
-            WritePattern = steriogram::WritePattern<PIXEL_SIZE>;
-        if (stride == 0)
-            stride = width * PIXEL_SIZE;
-        if (column == 0)
-            column = 4.5 * pow(width, 0.4);
-        std::vector<unsigned char> pattern(column * column);
-        WritePattern(column, pattern.data(), user_data);
         int size = std::min(3, PIXEL_SIZE);
         std::vector<std::thread>threads(std::thread::hardware_concurrency());
         int end = 0;
@@ -62,7 +59,7 @@ namespace steriogram
                     {
                         int z = 0;
                         for (int i = 0; i < size; ++i)
-                            z += (data + y * stride + x * PIXEL_SIZE)[i];
+                            z += (data + (y * width + x) * PIXEL_SIZE)[i];
                         z /= size * (256 / Z_LEVELS);
                         if (z != 0)
                         {
@@ -84,8 +81,8 @@ namespace steriogram
                         }
                     }
                     for (int x = 0; x < width; ++x)
-                        memcpy(data + y * stride + x * PIXEL_SIZE,
-                            pattern.data() + ((y % column) * column + ((x + shifts[x]) % column)) * PIXEL_SIZE,
+                        memcpy(data + (y * width + x) * PIXEL_SIZE,
+                            pattern + ((y % column) * column + ((x + shifts[x]) % column)) * PIXEL_SIZE,
                             PIXEL_SIZE);
                 }
             });
