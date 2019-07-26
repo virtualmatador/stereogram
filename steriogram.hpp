@@ -12,7 +12,7 @@ namespace steriogram
     }
 
     template<int PIXEL_SIZE>
-    std::vector<unsigned  char> CreatePattern(const int column)
+    std::vector<unsigned char> CreateCurvedPattern(const int column)
     {
         std::vector<unsigned char> pattern(column * column * PIXEL_SIZE);
         for (int y = 0; y < column; ++y)
@@ -25,6 +25,28 @@ namespace steriogram
                     pattern[(y * column + x) * PIXEL_SIZE + 1] = int(pow(y + column / 4.8, 1.15) * pow(x + column / 4.6, 1.25)) % 256;
                 if (PIXEL_SIZE > 2)
                     pattern[(y * column + x) * PIXEL_SIZE + 2] = int(pow(y + column / 2.2, 1.85) * pow(x + column / 2.4, 1.75)) % 256;
+                if (PIXEL_SIZE > 3)
+                    pattern[(y * column + x) * PIXEL_SIZE + 3] = 255;
+            }
+        }
+        return pattern;
+    }
+
+    template<int PIXEL_SIZE>
+    std::vector<unsigned char> CreateRandomPattern(const int column)
+    {
+        std::vector<unsigned char> pattern(column * column * PIXEL_SIZE);
+        for (int y = 0; y < column; ++y)
+        {
+            for (int x = 0; x < column; ++x)
+            {
+                int r = rand() % (256 * 256 * 256);
+                if (PIXEL_SIZE > 0)
+                    pattern[(y * column + x) * PIXEL_SIZE + 0] = ((unsigned char*)&r)[0];
+                if (PIXEL_SIZE > 1)
+                    pattern[(y * column + x) * PIXEL_SIZE + 1] = ((unsigned char*)&r)[1];
+                if (PIXEL_SIZE > 2)
+                    pattern[(y * column + x) * PIXEL_SIZE + 2] = ((unsigned char*)&r)[2];
                 if (PIXEL_SIZE > 3)
                     pattern[(y * column + x) * PIXEL_SIZE + 3] = 255;
             }
