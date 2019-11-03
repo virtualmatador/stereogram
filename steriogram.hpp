@@ -67,7 +67,7 @@ namespace steriogram
     {
         std::vector<std::thread>threads(std::thread::hardware_concurrency());
         int end = 0;
-        int progress = (height + threads.size() - 1) / threads.size();
+        int progress = int((height + threads.size() - 1) / threads.size());
         for (auto & thread : threads)
         {
             int start = end;
