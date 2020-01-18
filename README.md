@@ -1,3 +1,3 @@
-# Steriogram
-## Headeronly library to create autosteriogram images
+# Stereogram
+## Headeronly library to create autostereogram images
 

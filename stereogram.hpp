@@ -3,7 +3,7 @@
 #include <cmath>
 #include <thread>
 
-namespace steriogram
+namespace stereogram
 {
 
     int GetColumn(const int width)
