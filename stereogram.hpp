@@ -18,7 +18,7 @@ namespace stereogram
         int g = (order_rgba & 0x00FF0000) >> 16;
         int b = (order_rgba & 0x0000FF00) >>  8;
         int a = (order_rgba & 0x000000FF) >>  0;
-        std::vector<unsigned char> pattern(column * column * 4);
+        std::vector<unsigned char> pattern(column * column * PIXEL_SIZE);
         for (int y = 0; y < column; ++y)
         {
             for (int x = 0; x < column; ++x)
@@ -43,7 +43,7 @@ namespace stereogram
         int g = (order_rgba & 0x00FF0000) >> 16;
         int b = (order_rgba & 0x0000FF00) >>  8;
         int a = (order_rgba & 0x000000FF) >>  0;
-        std::vector<unsigned char> pattern(column * column * 4);
+        std::vector<unsigned char> pattern(column * column * PIXEL_SIZE);
         for (int y = 0; y < column; ++y)
         {
             for (int x = 0; x < column; ++x)
@@ -87,9 +87,9 @@ namespace stereogram
                         x += side)
                     {
                         int z = 0;
-                        for (int i = 0; i < PIXEL_SIZE; ++i)
+                        for (int i = 0; i < 3; ++i)
                             z += (data + (y * width + x) * PIXEL_SIZE)[i];
-                        z /= PIXEL_SIZE * (256 / Z_LEVELS);
+                        z /= 3 * (256 / Z_LEVELS);
                         if (z != 0)
                         {
                             for (int k = x + side * column / 2 - side * (z + z % 2 * (side + 1) / 2) / 2;
