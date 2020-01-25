@@ -1,5 +1,6 @@
 #include <array>
 #include <cmath>
+#include <cstring>
 #include <functional>
 #include <random>
 #include <thread>
@@ -29,38 +30,13 @@ namespace stereogram
         return 4.4 * pow(width, 0.44);
     }
 
-    template<int PIXEL_SIZE, int PIXEL_FORMAT>
-    std::vector<unsigned char> CreateCurvedPattern(const int column)
+    template<int PIXEL_SIZE>
+    std::vector<unsigned char> CreatePattern(const int column, const int pixel_format)
     {
-        const int r = (PIXEL_FORMAT & 0xFF000000) >> 24;
-        const int g = (PIXEL_FORMAT & 0x00FF0000) >> 16;
-        const int b = (PIXEL_FORMAT & 0x0000FF00) >>  8;
-        const int a = (PIXEL_FORMAT & 0x000000FF) >>  0;
-        std::vector<unsigned char> pattern(column * column * PIXEL_SIZE);
-        for (int y = 0; y < column; ++y)
-        {
-            for (int x = 0; x < column; ++x)
-            {
-                if (PIXEL_SIZE > r)
-                    pattern[(y * column + x) * PIXEL_SIZE + r] = int(pow(y + column / 3.6, 1.45) * pow(x + column / 3.4, 1.55)) % 256;
-                if (PIXEL_SIZE > g)
-                    pattern[(y * column + x) * PIXEL_SIZE + g] = int(pow(y + column / 4.8, 1.15) * pow(x + column / 4.6, 1.25)) % 256;
-                if (PIXEL_SIZE > b)
-                    pattern[(y * column + x) * PIXEL_SIZE + b] = int(pow(y + column / 2.2, 1.85) * pow(x + column / 2.4, 1.75)) % 256;
-                if (PIXEL_SIZE > a)
-                    pattern[(y * column + x) * PIXEL_SIZE + a] = 255;
-            }
-        }
-        return pattern;
-    }
-
-    template<int PIXEL_SIZE, int PIXEL_FORMAT>
-    std::vector<unsigned char> CreateRandomPattern(const int column)
-    {
-        const int r = (PIXEL_FORMAT & 0xFF000000) >> 24;
-        const int g = (PIXEL_FORMAT & 0x00FF0000) >> 16;
-        const int b = (PIXEL_FORMAT & 0x0000FF00) >>  8;
-        const int a = (PIXEL_FORMAT & 0x000000FF) >>  0;
+        const int r = (pixel_format & 0xFF000000) >> 24;
+        const int g = (pixel_format & 0x00FF0000) >> 16;
+        const int b = (pixel_format & 0x0000FF00) >>  8;
+        const int a = (pixel_format & 0x000000FF) >>  0;
         std::vector<unsigned char> pattern(column * column * PIXEL_SIZE);
         RunParallel(column, [&](int begin, int end)
         {
@@ -71,7 +47,7 @@ namespace stereogram
             {
                 for (int x = 0; x < column; ++x)
                 {
-                    int color = distribution(generator) % (256 * 256 * 256);
+                    int color = distribution(generator);
                     if (PIXEL_SIZE > r)
                         pattern[(y * column + x) * PIXEL_SIZE + r] = ((unsigned char*)&color)[0];
                     if (PIXEL_SIZE > g)
@@ -125,9 +101,11 @@ namespace stereogram
                     }
                 }
                 for (int x = 0; x < width; ++x)
-                    memcpy(data + (y * width + x) * PIXEL_SIZE,
+                {
+                    std::memcpy(data + (y * width + x) * PIXEL_SIZE,
                         pattern + ((y % column) * column + ((x + shifts[x]) % column)) * PIXEL_SIZE,
                         PIXEL_SIZE);
+                }
             }
         }
         );
